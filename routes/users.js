@@ -3,9 +3,22 @@ const router = express.Router();
 const multer = require("multer");
 const User = require("../models/User");
 
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    if (file.fieldname === "documents") {
+      cb(null, "uploads/documents");
+    } else {
+      cb(null, "uploads/");
+    }
   },
   filename: function (req, file, cb) {
     cb(null, Date.now() + "-" + file.originalname);
@@ -29,15 +42,22 @@ router.post(
   "/",
   upload.fields([{ name: "image" }, { name: "documents" }]),
   async (req, res) => {
+    const documents = req.files["documents"]
+      ? req.files["documents"].map((file, index) => ({
+          id: index + 1,
+          name: file.originalname,
+          file: file.path,
+        }))
+      : [];
     try {
       const user = new User({
         name: req.body.name,
-        email: req.body.email,
+        // email: req.body.email,
         choose: JSON.parse(req.body.choose || "[]"),
         agency: req.body.agency,
         phone: req.body.phone,
         idNumber: req.body.idNumber,
-        image: req.files["image"] ? req.files["image"][0].path : null,
+
         startDate: req.body.startDate,
         position: req.body.position,
         agency2: req.body.agency2,
@@ -90,12 +110,13 @@ router.post(
         expiryDate: req.body.expiryDate,
         canWorkAnyWhere: req.body.canWorkAnyWhere,
         reason: req.body.reason,
-        documents: req.files["documents"]
-          ? req.files["documents"].map((file) => ({
-              name: file.originalname,
-              file: file.path,
-            }))
-          : [],
+        // documents: req.files["documents"]
+        //   ? req.files["documents"].map((file) => ({
+        //       name: file.originalname,
+        //       file: file.path,
+        //     }))
+        //   : [],
+        documents: documents,
       });
 
       const newUser = await user.save();

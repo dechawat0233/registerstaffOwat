@@ -31,7 +31,8 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   name: { type: String },
-  email: { type: String, unique: true, sparse: true }, // Add the email field
+  // email: { type: String, unique: true, sparse: true }, // Add the email field
+  // email: { type: String }, // Add the email field
   choose: { type: Array, default: [] },
   agency: { type: String },
   phone: { type: String },
@@ -118,6 +119,6 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("Register", userSchema);
 
 module.exports = User;
