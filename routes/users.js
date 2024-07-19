@@ -49,16 +49,24 @@ router.post(
           file: file.path,
         }))
       : [];
+      // Log files for debugging
+    console.log('Uploaded image:', req.files['image']);
+    console.log('Uploaded documents:', req.files['documents']);
     try {
       const user = new User({
+        recordTime: req.body.recordTime,
         name: req.body.name,
         // email: req.body.email,
         choose: JSON.parse(req.body.choose || "[]"),
         agency: req.body.agency,
+        status: req.body.status,
         phone: req.body.phone,
         idNumber: req.body.idNumber,
-
+        // image: req.body.image,
+        image: req.files['image'] ? req.files['image'][0].path : '',
         startDate: req.body.startDate,
+        social_security: req.body.social_security,
+        social_security_number: req.body.social_security_number,
         position: req.body.position,
         agency2: req.body.agency2,
         names: req.body.names,
@@ -69,7 +77,10 @@ router.post(
         religion: req.body.religion,
         cardnumber: req.body.cardnumber,
         country: req.body.country,
+        place_of_birth: req.body.place_of_birth,
         address: req.body.address,
+        addressForNumberID: JSON.parse(req.body.addressForNumberID || "{}"),
+      addressForContact: JSON.parse(req.body.addressForContact || "{}"),
         etc: req.body.etc,
         phones: req.body.phones,
         contactPhone: req.body.contactPhone,
@@ -134,6 +145,18 @@ router.delete("/delete", async (req, res) => {
   try {
     await User.deleteMany({});
     res.status(200).json({ message: "All users have been deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
