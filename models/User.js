@@ -58,7 +58,12 @@ const userSchema = new mongoose.Schema({
   // email: { type: String }, // Add the email field
   choose: { type: Array, default: [] },
   agency: { type: String },
-  status: { type: String },
+  // status: { type: String },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'suspended'], // Define the allowed statuses
+    default: 'active'
+  },
   phone: { type: String },
   idNumber: { type: String },
   image: { type: String },
@@ -132,6 +137,7 @@ const userSchema = new mongoose.Schema({
   bankname: { type: String },
   bankBranch: { type: String },
   emergencyName: { type: String },
+  relevant: { type: String },
   parentContact: { type: String },
   Contact: { type: String },
   emergencyContact: { type: String },

@@ -3,6 +3,15 @@ const router = express.Router();
 const multer = require("multer");
 const User = require("../models/User");
 
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, "uploads/");
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === "documents") {
@@ -40,19 +49,20 @@ router.post(
           file: file.path,
         }))
       : [];
-    
+      // Log files for debugging
     console.log('Uploaded image:', req.files['image']);
     console.log('Uploaded documents:', req.files['documents']);
-
     try {
       const user = new User({
         recordTime: req.body.recordTime,
         name: req.body.name,
+        // email: req.body.email,
         choose: JSON.parse(req.body.choose || "[]"),
         agency: req.body.agency,
         status: req.body.status,
         phone: req.body.phone,
         idNumber: req.body.idNumber,
+        // image: req.body.image,
         image: req.files['image'] ? req.files['image'][0].path : '',
         startDate: req.body.startDate,
         social_security: req.body.social_security,
@@ -70,7 +80,7 @@ router.post(
         place_of_birth: req.body.place_of_birth,
         address: req.body.address,
         addressForNumberID: JSON.parse(req.body.addressForNumberID || "{}"),
-        addressForContact: JSON.parse(req.body.addressForContact || "{}"),
+      addressForContact: JSON.parse(req.body.addressForContact || "{}"),
         etc: req.body.etc,
         phones: req.body.phones,
         contactPhone: req.body.contactPhone,
@@ -112,6 +122,12 @@ router.post(
         expiryDate: req.body.expiryDate,
         canWorkAnyWhere: req.body.canWorkAnyWhere,
         reason: req.body.reason,
+        // documents: req.files["documents"]
+        //   ? req.files["documents"].map((file) => ({
+        //       name: file.originalname,
+        //       file: file.path,
+        //     }))
+        //   : [],
         documents: documents,
       });
 
@@ -119,7 +135,7 @@ router.post(
       res.status(201).json(newUser);
     } catch (error) {
       console.error("Error creating user:", error.message);
-      console.error(error.stack);
+      console.error(error.stack); // Log the stack trace for debugging purposes
       res.status(400).json({ message: error.message });
     }
   }
@@ -135,7 +151,6 @@ router.delete("/delete", async (req, res) => {
   }
 });
 
-// Get user by ID
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -148,23 +163,17 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update user status
-router.put('/:id', async (req, res) => {
+router.put('/users/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
-
-  console.log('Received ID:', id);
-  console.log('Received Status:', status);
 
   try {
     const user = await User.findByIdAndUpdate(id, { status }, { new: true });
     if (!user) {
-      console.log('User not found');
       return res.status(404).json({ message: 'User not found' });
     }
     res.json(user);
   } catch (error) {
-    console.log('Error:', error);
     res.status(500).json({ message: 'Server error', error });
   }
 });

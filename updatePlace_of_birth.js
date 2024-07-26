@@ -15,7 +15,7 @@ const updateAllUsers = async () => {
   try {
     const result = await User.updateMany(
       {},
-      { place_of_birth: "ขอนแก่น" }
+      { relevant: "บิดา" }
     );
     console.log('All user records updated:', result);
   } catch (error) {
